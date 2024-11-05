@@ -428,6 +428,7 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
         QRCodeScanner { scannedData ->
             // Handle the scanned data here
             println("Scanned QR code: $scannedData")
+            Log.d("QRCodeScanner", "Scanned QR code: $scannedData")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -543,7 +544,7 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
         }
 
     val previewConfig = Preview.Builder().build()
-    val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
     val cameraProvider = remember(context) {
         val provider = ProcessCameraProvider.getInstance(context)
