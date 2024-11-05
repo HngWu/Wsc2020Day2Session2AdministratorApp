@@ -67,8 +67,10 @@ import androidx.camera.core.Preview
 import androidx.compose.foundation.layout.*
 import com.google.mlkit.vision.common.InputImage
 import android.Manifest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.runtime.*
+import androidx.core.app.ActivityCompat
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -78,9 +80,40 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private lateinit var sessionManager: SessionManager
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.i("kilo", "Permission granted")
+        } else {
+            Log.i("kilo", "Permission denied")
+        }
+    }
+
+    private fun requestCameraPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.i("kilo", "Permission previously granted")
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.CAMERA
+            ) -> Log.i("kilo", "Show camera permissions dialog")
+
+            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
+
 
         val colorScheme = lightColorScheme(
             primary = Color(0xFF005CB9),
@@ -89,12 +122,16 @@ class MainActivity : ComponentActivity() {
         )
         sessionManager = SessionManager(this)
 
+
+
+
         setContent {
             MaterialTheme(
                 colorScheme = colorScheme,
                 typography = androidx.compose.material3.Typography(),
                 content = {
                     val navController = rememberNavController()
+                    requestCameraPermission()
 
                     NavHost(navController = navController, startDestination = "home") {
                         composable("login") {
@@ -119,6 +156,8 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(navController = navController,context = this@MainActivity)
                         }
                     }
+
+
                 }
             )
         }
