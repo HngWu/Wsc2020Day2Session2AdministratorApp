@@ -458,6 +458,7 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var cameraPermissionGranted by remember { mutableStateOf(false) }
 
+
     // Request camera permission
     LaunchedEffect(key1 = Unit) {
         val permission = Manifest.permission.CAMERA
@@ -509,16 +510,12 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
         )
     }
 
-    // Uncomment this to display the camera preview
-    /*
-    Box(
+    Column(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CameraPreview(
-            // Pass the CameraProvider, CameraSelector, and PreviewConfig from the previous code
-        )
+        Text("Scanning for QR code...")
     }
-    */
 }
 
