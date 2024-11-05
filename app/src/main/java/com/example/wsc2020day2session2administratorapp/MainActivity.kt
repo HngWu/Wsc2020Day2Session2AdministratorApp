@@ -69,7 +69,9 @@ import com.google.mlkit.vision.common.InputImage
 import android.Manifest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.runtime.*
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -490,13 +492,14 @@ fun LoginScreen(navController: NavController, context: Context) {
 }
 
 
+
 @OptIn(ExperimentalGetImage::class)
 @Composable
 fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var cameraPermissionGranted by remember { mutableStateOf(false) }
-
+    val previewView = remember { PreviewView(context) }
 
     // Request camera permission
     LaunchedEffect(key1 = Unit) {
@@ -533,7 +536,7 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
         }
 
     val previewConfig = Preview.Builder().build()
-    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+    val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
     val cameraProvider = remember(context) {
         val provider = ProcessCameraProvider.getInstance(context)
@@ -544,17 +547,15 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
         cameraProvider.bindToLifecycle(
             context.applicationContext as MainActivity,
             cameraSelector,
-            previewConfig,
+            previewConfig.also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            },
             imageAnalysis
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Scanning for QR code...")
-    }
+    AndroidView(
+        factory = { previewView },
+        modifier = Modifier.fillMaxSize()
+    )
 }
-
