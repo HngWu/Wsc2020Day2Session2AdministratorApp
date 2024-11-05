@@ -10,7 +10,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,6 +69,7 @@ import android.Manifest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
@@ -404,8 +404,7 @@ fun AnnouncementsScreen(navController: NavController, context: Context) {
 }
 @Composable
 fun CheckInCompetitorScreen(navController: NavController, context: Context) {
-
-
+    var competitorId by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -416,28 +415,40 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
         Text(text = "Check-In Competitor", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
         // QR code scanner placeholder
-        Text(text = "QR Code Scanner Placeholder")
-
-        Button(
-            onClick = {
-                navController.navigate("qrCodeScanner")
-            }
-        ) {
-            Text(text = "Scan QR Code")
-        }
-        QRCodeScanner { scannedData ->
-            // Handle the scanned data here
-            println("Scanned QR code: $scannedData")
-            Log.d("QRCodeScanner", "Scanned QR code: $scannedData")
-        }
-
+        Text(text = "QR Code Scanner")
         Spacer(modifier = Modifier.height(16.dp))
+
+       Column(
+              modifier = Modifier.width(150.dp),
+              verticalArrangement = Arrangement.Center,
+              horizontalAlignment = Alignment.CenterHorizontally,
+
+       ) {
+           QRCodeScanner { scannedData ->
+               // Handle the scanned data here
+               competitorId = scannedData
+               Log.d("QRCodeScanner", "Scanned QR code: $scannedData")
+
+           }
+       }
+
+
+        Spacer(modifier = Modifier.height(36.dp))
         // Code entry field
         OutlinedTextField(
-            value = "",
-            onValueChange = { /* Handle code entry */ },
+            value = competitorId,
+            onValueChange = { competitorId = it },
             label = { Text("Enter Code") }
         )
+        Button(
+            onClick = {
+                // Handle the check-in logic here
+                Toast.makeText(context, "Checking in competitor with code: $competitorId", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            Text(text = "Check-In")
+        }
+
     }
 }
 
@@ -545,7 +556,6 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
 
     val previewConfig = Preview.Builder().build()
     val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
     val cameraProvider = remember(context) {
         val provider = ProcessCameraProvider.getInstance(context)
         provider.get()
@@ -564,7 +574,7 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
 
     AndroidView(
         factory = { previewView },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.width(300.dp).height(300.dp)
     ) {
         if (!cameraPermissionGranted) {
             it.setBackgroundColor(Color.Black.toArgb())
