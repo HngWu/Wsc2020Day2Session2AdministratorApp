@@ -60,4 +60,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation ("androidx.camera:camera-camera2:1.1.0")
+    implementation ("com.google.mlkit:barcode-scanning:16.1.1")
+    implementation ("androidx.camera:camera-core:1.3.0-alpha06")
+    implementation ("androidx.camera:camera-camera2:1.3.0-alpha06")
+    implementation ("androidx.camera:camera-lifecycle:1.3.0-alpha06")
+    implementation ("androidx.camera:camera-view:1.3.0-alpha06")
 }
