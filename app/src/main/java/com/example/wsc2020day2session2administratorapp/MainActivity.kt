@@ -71,8 +71,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.LifecycleOwner
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -493,6 +495,8 @@ fun LoginScreen(navController: NavController, context: Context) {
 
 
 
+
+
 @OptIn(ExperimentalGetImage::class)
 @Composable
 fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
@@ -518,7 +522,7 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
                     .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
                     .build()
                 val scanner = BarcodeScanning.getClient(options)
-                val inputImage = InputImage.fromMediaImage(image.image, image.imageInfo.rotationDegrees)
+                val inputImage = InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees)
                 scanner.process(inputImage)
                     .addOnSuccessListener { barcodes ->
                         for (barcode in barcodes) {
@@ -531,6 +535,9 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
                     }
                     .addOnFailureListener { e ->
                         Log.d("QRCodeScanner", "Barcode scanning failed: $e")
+                    }
+                    .addOnCompleteListener {
+                        image.close()
                     }
             }
         }
@@ -545,7 +552,7 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
 
     if (cameraPermissionGranted) {
         cameraProvider.bindToLifecycle(
-            context.applicationContext as MainActivity,
+            context as LifecycleOwner,
             cameraSelector,
             previewConfig.also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
@@ -557,5 +564,9 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
     AndroidView(
         factory = { previewView },
         modifier = Modifier.fillMaxSize()
-    )
+    ) {
+        if (!cameraPermissionGranted) {
+            it.setBackgroundColor(Color.Black.toArgb())
+        }
+    }
 }
