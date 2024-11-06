@@ -37,12 +37,14 @@ class authAdmin {
             val sessionManager = SessionManager(context)
             var session = sessionManager.getSession()
 
-            if (session == null) {
-                onFailure(true)
-                return
-            }
-            val newSession = UserSession(session.token, session.role, session.userId)
+//            if (session == null) {
+//                Handler(Looper.getMainLooper()).post() {
+//                    onFailure(true)
+//                }
+//            }
 
+
+            val newSession = session?.let { UserSession(it.token, it.role, it.userId) }
 
             val json = Json.encodeToString(newSession)
             val os = OutputStreamWriter(con.outputStream)

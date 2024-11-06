@@ -280,7 +280,6 @@ fun AddCompetitorScreen(navController: NavController, context: Context) {
                     val authAdmin = authAdmin()
                     authAdmin.postFunction(context,
                         onSuccess = {
-
                            postUser = true
                                     },
                         onFailure = {
@@ -405,6 +404,26 @@ fun AnnouncementsScreen(navController: NavController, context: Context) {
 @Composable
 fun CheckInCompetitorScreen(navController: NavController, context: Context) {
     var competitorId by remember { mutableStateOf("") }
+    var alert by remember { mutableStateOf(false) }
+
+    if (alert)
+    {
+        AlertDialog(
+            onDismissRequest = { alert = false },
+            title = { Text("Success") },
+            text = { Text("Announcement  sented successfully") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        alert = false
+
+                    }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -455,6 +474,28 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
 @Composable
 fun LoginScreen(navController: NavController, context: Context) {
 
+    var alert by remember { mutableStateOf(false) }
+
+    if (alert)
+    {
+        AlertDialog(
+            onDismissRequest = { alert = false },
+            title = { Text("Invalid") },
+            text = { Text("Invalid Login Details") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        alert = false
+
+                    }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -492,7 +533,7 @@ fun LoginScreen(navController: NavController, context: Context) {
                             navController.navigate("home")
                         },
                         onFailure = {
-                            Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
+                            alert = true
                         })
 
                 }
@@ -504,9 +545,6 @@ fun LoginScreen(navController: NavController, context: Context) {
 
 
 }
-
-
-
 
 
 @OptIn(ExperimentalGetImage::class)
@@ -572,6 +610,11 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
         )
     }
 
+    DisposableEffect(key1 = cameraProvider) {
+        onDispose {
+            cameraProvider.unbindAll()
+        }
+    }
     AndroidView(
         factory = { previewView },
         modifier = Modifier.width(300.dp).height(300.dp)
