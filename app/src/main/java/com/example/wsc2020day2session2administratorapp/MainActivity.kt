@@ -165,6 +165,11 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        sessionManager.clearSession()
+    }
 }
 
 
@@ -517,7 +522,7 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Column(
-            modifier = Modifier.size(200.dp),
+            modifier = Modifier.width(150.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 
