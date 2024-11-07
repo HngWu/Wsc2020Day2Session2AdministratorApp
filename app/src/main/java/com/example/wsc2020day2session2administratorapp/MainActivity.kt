@@ -75,6 +75,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LifecycleOwner
+import com.example.wsc2020day2session2administratorapp.api.checkin
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -117,8 +118,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
 
-
-
         val colorScheme = lightColorScheme(
             primary = Color(0xFF005CB9),
             onPrimary = Color.White,
@@ -157,7 +156,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable("home") {
-                            HomeScreen(navController = navController,context = this@MainActivity)
+                            HomeScreen(navController = navController, context = this@MainActivity)
                         }
                     }
 
@@ -165,7 +164,6 @@ class MainActivity : ComponentActivity() {
                 }
             )
         }
-
     }
 }
 
@@ -180,13 +178,21 @@ fun HomeScreen(navController: NavController, context: Context) {
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row (
-            modifier = Modifier.background(MaterialTheme.colorScheme.primary).fillMaxWidth().height(90.dp),
+        Row(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primary)
+                .fillMaxWidth()
+                .height(90.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
 
-        ){
-            Text(text = "Administrator App", style = MaterialTheme.typography.headlineMedium, color = Color.White, modifier = Modifier.padding(start = 16.dp))
+        ) {
+            Text(
+                text = "Administrator App",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White,
+                modifier = Modifier.padding(start = 16.dp)
+            )
             Button(
                 onClick = {
                     sessionManager.clearSession()
@@ -199,7 +205,11 @@ fun HomeScreen(navController: NavController, context: Context) {
 
 
         when (selectedTabIndex) {
-            0 -> CheckInCompetitorScreen(navController = navController, context = LocalContext.current)
+            0 -> CheckInCompetitorScreen(
+                navController = navController,
+                context = LocalContext.current
+            )
+
             1 -> AddCompetitorScreen(navController = navController, context = LocalContext.current)
             2 -> AnnouncementsScreen(navController = navController, context = LocalContext.current)
         }
@@ -216,6 +226,7 @@ fun HomeScreen(navController: NavController, context: Context) {
 
 
 }
+
 @Composable
 fun AddCompetitorScreen(navController: NavController, context: Context) {
     var fullName by remember { mutableStateOf("") }
@@ -223,9 +234,8 @@ fun AddCompetitorScreen(navController: NavController, context: Context) {
     var password by remember { mutableStateOf("") }
     var alert by remember { mutableStateOf(false) }
     var postUser by remember { mutableStateOf(false) }
-    
-    if (alert)
-    {
+
+    if (alert) {
         AlertDialog(
             onDismissRequest = { alert = false },
             title = { Text("Success") },
@@ -280,23 +290,30 @@ fun AddCompetitorScreen(navController: NavController, context: Context) {
                     val authAdmin = authAdmin()
                     authAdmin.postFunction(context,
                         onSuccess = {
-                           postUser = true
-                                    },
+                            postUser = true
+                        },
                         onFailure = {
-                            Toast.makeText(context, "Authentication Failed, Please Login Again", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Authentication Failed, Please Login Again",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             navController.navigate("login")
                         })
 
-                    if (postUser)
-                    {
-                        val newUser = CreateUser(fullName ,email, password)
+                    if (postUser) {
+                        val newUser = CreateUser(fullName, email, password)
                         val loginService = createUser()
                         loginService.postFunction(newUser, context,
                             onSuccess = {
                                 alert = true
                             },
                             onFailure = {
-                                Toast.makeText(context, "Creation of Competitor Failed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Creation of Competitor Failed",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             })
                     }
 
@@ -308,6 +325,7 @@ fun AddCompetitorScreen(navController: NavController, context: Context) {
         }
     }
 }
+
 @Composable
 fun AnnouncementsScreen(navController: NavController, context: Context) {
     var fullName by remember { mutableStateOf("") }
@@ -316,8 +334,7 @@ fun AnnouncementsScreen(navController: NavController, context: Context) {
     var alert by remember { mutableStateOf(false) }
     var postUser by remember { mutableStateOf(false) }
 
-    if (alert)
-    {
+    if (alert) {
         AlertDialog(
             onDismissRequest = { alert = false },
             title = { Text("Success") },
@@ -378,7 +395,7 @@ fun AnnouncementsScreen(navController: NavController, context: Context) {
                         })
 
                     if (postUser) {
-                        val announcement = Announcement(title ,description)
+                        val announcement = Announcement(title, description)
                         val sendAnnouncement = sendAnnouncement()
                         sendAnnouncement.postFunction(announcement, context,
                             onSuccess = {
@@ -401,17 +418,22 @@ fun AnnouncementsScreen(navController: NavController, context: Context) {
         }
     }
 }
+
 @Composable
 fun CheckInCompetitorScreen(navController: NavController, context: Context) {
     var competitorId by remember { mutableStateOf("") }
     var alert by remember { mutableStateOf(false) }
+    var checkedInAlert by remember { mutableStateOf(false) }
+    var invalidAlert by remember { mutableStateOf(false) }
+    var auth by remember { mutableStateOf(false) }
+    var competitorEmail by remember { mutableStateOf("") }
 
-    if (alert)
-    {
+
+    if (alert) {
         AlertDialog(
             onDismissRequest = { alert = false },
             title = { Text("Success") },
-            text = { Text("Announcement  sented successfully") },
+            text = { Text("$competitorEmail successfully checked in") },
             confirmButton = {
                 Button(
                     onClick = {
@@ -423,6 +445,63 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
                 }
             }
         )
+    }
+    if (checkedInAlert) {
+        AlertDialog(
+            onDismissRequest = { alert = false },
+            title = { Text("Checked In Already") },
+            text = { Text("$competitorEmail has already checked in") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        checkedInAlert = false
+
+                    }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+    if (invalidAlert) {
+        AlertDialog(
+            onDismissRequest = { alert = false },
+            title = { Text("Invalid") },
+            text = { Text("Invalid CompetitorId") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        invalidAlert = false
+
+                    }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
+    if (auth) {
+        LaunchedEffect(Unit) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val checkin = checkin()
+                var response = checkin.postFunction(competitorId, context)
+                competitorEmail = response?.competitorEmail.toString()
+
+                if (response?.competitorEmail.toString() != null && response?.competitorEmail.toString() != "" && response != null) {
+                    if (response?.isCheckedIn == true) {
+                        checkedInAlert = true
+                    } else {
+                        alert = true
+                    }
+                } else {
+                    invalidAlert = true
+                }
+                auth = false
+                competitorId = ""
+            }
+        }
+
     }
 
     Column(
@@ -437,19 +516,21 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
         Text(text = "QR Code Scanner")
         Spacer(modifier = Modifier.height(16.dp))
 
-       Column(
-              modifier = Modifier.width(150.dp),
-              verticalArrangement = Arrangement.Center,
-              horizontalAlignment = Alignment.CenterHorizontally,
+        Column(
+            modifier = Modifier.width(150.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
 
-       ) {
-           QRCodeScanner { scannedData ->
-               // Handle the scanned data here
-               competitorId = scannedData
-               Log.d("QRCodeScanner", "Scanned QR code: $scannedData")
+            ) {
+            QRCodeScanner { scannedData ->
+                // Handle the scanned data here
+                competitorId = scannedData
+                Log.d("QRCodeScanner", "Scanned QR code: $scannedData")
 
-           }
-       }
+
+
+            }
+        }
 
 
         Spacer(modifier = Modifier.height(36.dp))
@@ -459,10 +540,30 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
             onValueChange = { competitorId = it },
             label = { Text("Enter Code") }
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                // Handle the check-in logic here
-                Toast.makeText(context, "Checking in competitor with code: $competitorId", Toast.LENGTH_SHORT).show()
+
+                if (competitorId != "") {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val authAdmin = authAdmin()
+                        authAdmin.postFunction(context,
+                            onSuccess = {
+                                auth = true
+                            },
+                            onFailure = {
+                                Toast.makeText(
+                                    context,
+                                    "Authentication Failed, Please Login Again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.navigate("login")
+                            })
+                    }
+
+
+
+                }
             }
         ) {
             Text(text = "Check-In")
@@ -476,8 +577,7 @@ fun LoginScreen(navController: NavController, context: Context) {
 
     var alert by remember { mutableStateOf(false) }
 
-    if (alert)
-    {
+    if (alert) {
         AlertDialog(
             onDismissRequest = { alert = false },
             title = { Text("Invalid") },
@@ -496,7 +596,7 @@ fun LoginScreen(navController: NavController, context: Context) {
     }
 
 
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(
@@ -510,9 +610,9 @@ fun LoginScreen(navController: NavController, context: Context) {
         Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") }
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") }
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -526,7 +626,7 @@ fun LoginScreen(navController: NavController, context: Context) {
             modifier = Modifier.width(280.dp),
             onClick = {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val user = User(username, password)
+                    val user = User(email, password)
                     val loginService = login()
                     loginService.postFunction(user, context,
                         onSuccess = {
@@ -558,7 +658,10 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
     // Request camera permission
     LaunchedEffect(key1 = Unit) {
         val permission = Manifest.permission.CAMERA
-        val granted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
         cameraPermissionGranted = granted
     }
 
@@ -572,7 +675,8 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
                     .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
                     .build()
                 val scanner = BarcodeScanning.getClient(options)
-                val inputImage = InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees)
+                val inputImage =
+                    InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees)
                 scanner.process(inputImage)
                     .addOnSuccessListener { barcodes ->
                         for (barcode in barcodes) {
@@ -617,7 +721,9 @@ fun QRCodeScanner(onQRCodeScanned: (String) -> Unit) {
     }
     AndroidView(
         factory = { previewView },
-        modifier = Modifier.width(300.dp).height(300.dp)
+        modifier = Modifier
+            .width(300.dp)
+            .height(300.dp)
     ) {
         if (!cameraPermissionGranted) {
             it.setBackgroundColor(Color.Black.toArgb())
