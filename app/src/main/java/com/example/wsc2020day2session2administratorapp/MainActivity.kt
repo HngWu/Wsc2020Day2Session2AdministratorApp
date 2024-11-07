@@ -517,7 +517,7 @@ fun CheckInCompetitorScreen(navController: NavController, context: Context) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Column(
-            modifier = Modifier.width(150.dp),
+            modifier = Modifier.size(200.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
 

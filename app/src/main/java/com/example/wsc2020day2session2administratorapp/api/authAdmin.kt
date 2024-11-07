@@ -4,10 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.example.wsc2020day2session2administratorapp.models.Auth
-import com.example.wsc2020day2session2administratorapp.models.CreateUser
 import com.example.wsc2020day2session2administratorapp.models.SessionManager
-import com.example.wsc2020day2session2administratorapp.models.User
 import com.example.wsc2020day2session2administratorapp.models.UserSession
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
